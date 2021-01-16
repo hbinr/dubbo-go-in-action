@@ -1,7 +1,7 @@
 package conf
 
-// DataConfig datasource config
-type DataConfig struct {
+// AppConfig my app config
+type AppConfig struct {
 	MySQLConfig `yaml:"mysql"`
 	RedisConfig `yaml:"redis"`
 }
