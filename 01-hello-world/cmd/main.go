@@ -25,7 +25,7 @@ import (
 // 	export CONF_PROVIDER_FILE_PATH="../conf/server.yml"
 //	export APP_LOG_CONF_FILE="../conf/log.yml"
 func main() {
-	// 1.set provider,register service
+	// 1.set provider,register interfaces
 	config.SetProviderService(new(server.HelloWorldProvider))
 
 	// 2.add RESTfule server

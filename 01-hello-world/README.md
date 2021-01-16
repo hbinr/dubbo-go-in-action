@@ -21,7 +21,7 @@ set CONF_PROVIDER_FILE_PATH="../conf/server.yml"
 set APP_LOG_CONF_FILE="../conf/log.yml"
 ```
 
-## excute main.go
+## Excute main.go
 
 ```go
 go run main.go
