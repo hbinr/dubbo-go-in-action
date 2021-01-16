@@ -1,0 +1,67 @@
+package database
+
+import (
+	"database/sql"
+
+	"study.dubbogo/02-custom-config-file/pkg/conf"
+
+	"github.com/apache/dubbo-go/common/logger"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	gormLog "gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+)
+
+var (
+	sqlDB *sql.DB
+)
+
+// InitMySQL init gorm.DB
+func InitMySQL(cfg *conf.DataConfig) (db *gorm.DB, err error) {
+	mysqlConfig := mysql.Config{
+		DSN:                       cfg.DSN, // DSN data source name
+		DefaultStringSize:         191,     // string 类型字段的默认长度
+		DisableDatetimePrecision:  true,    // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+		DontSupportRenameIndex:    true,    // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+		DontSupportRenameColumn:   true,    // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+		SkipInitializeWithVersion: false,   // 根据版本自动配置
+	}
+	gormConfig := isLogOn(cfg.LogMode)
+	if db, err = gorm.Open(mysql.New(mysqlConfig), gormConfig); err != nil {
+		logger.Error("opens database failed", err)
+		return
+	}
+
+	if sqlDB, err = db.DB(); err != nil {
+		logger.Error("db.db() failed", err)
+		return
+	}
+
+	sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
+	return
+}
+
+// config Depending on the configuration, the logging is enabled or not
+func isLogOn(mod bool) (c *gorm.Config) {
+	if mod {
+		c = &gorm.Config{
+			Logger:                                   gormLog.Default.LogMode(gormLog.Info),
+			DisableForeignKeyConstraintWhenMigrating: true,
+			NamingStrategy: schema.NamingStrategy{
+				// Whether the data table name is in plural form,default:false for plural table's name
+				SingularTable: true,
+			},
+		}
+	} else {
+		c = &gorm.Config{
+			Logger:                                   gormLog.Default.LogMode(gormLog.Silent),
+			DisableForeignKeyConstraintWhenMigrating: true,
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		}
+	}
+	return
+}

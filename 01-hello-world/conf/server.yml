@@ -1,0 +1,39 @@
+application:
+  organization : "hello-world.com"
+  name : "hello-world"
+  module : "hello-world serverr"
+  version : "0.0.1"
+  owner : "hello-world"
+  environment : "dev"
+
+registries :
+  "nacos-hello-world":
+    protocol: "nacos"
+    timeout : "3s"
+    address: "127.0.0.1:8848"
+
+services:
+  "HelloWorldProvider":
+    registry: "nacos-hello-world"
+    protocol : "rest"
+    interface : "com.custom.package.HelloProvider"
+    rest_path: "/hello"
+    methods:
+    - name: "SayHi"
+      rest_path: "/get"
+      rest_method: "GET"
+      rest_query_params: "0:msg" # eg: /hello/get?msg=world"
+      rest_produces: "application/json"
+    - name: "Who"
+      rest_path: "/post"
+      rest_method: "POST"
+      rest_body: 0   # request body,0 is used to indicate the order of the function parameters,like: Who(req *PeopleReq)
+      rest_produces: "application/json"
+      rest_consumes: "application/json;charset=utf-8,*/*"
+
+
+protocols:
+  "rest":
+    name: "rest"
+    ip: "127.0.0.1"
+    port: 8081
